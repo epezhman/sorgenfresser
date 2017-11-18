@@ -3,6 +3,10 @@ const builder = require('botbuilder');
 
 const config = require('./config');
 
+var botConnectorOptions = {
+    appId: process.env.BOTFRAMEWORK_APPID ? process.env.BOTFRAMEWORK_APPID : config.MS_APP_ID ,
+    appPassword: process.env.BOTFRAMEWORK_APPSECRET ? process.env.BOTFRAMEWORK_APPSECRET :config.MS_APP_PASS
+};
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -11,10 +15,7 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
 });
 
 // Create chat connector for communicating with the Bot Framework Service
-var connector = new builder.ChatConnector({
-    appId: config.MS_APP_ID,
-    appPassword: config.MS_APP_PASS
-});
+var connector = new builder.ChatConnector(botConnectorOptions);
 
 // Listen for messages from users
 server.post('/api/messages', connector.listen());
