@@ -24,3 +24,18 @@ server.post('/api/messages', connector.listen());
 var bot = new builder.UniversalBot(connector, function (session) {
     session.send("You said again: %s", session.message.text);
 });
+
+bot.dialog('hello', [
+    function (session) {
+        builder.Prompts.text(session, 'Hi! I am Sorgenfreßer. Whats\'s your name?')
+    },
+    function (session, result) {
+        builder.Prompts.text(session, 'Hi ${result.response}!, How are you feeling today?')
+    },
+    function (session, result) {
+        builder.Prompts.text(session, 'What are you doing right now, besides talking to me?')
+    },
+    function (session, result) {
+        builder.Prompts.text(session, 'What are feeling more?')
+    }
+]);
