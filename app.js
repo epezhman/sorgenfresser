@@ -102,7 +102,7 @@ bot.dialog('intro_survey', [
     },
     function (session, result) {
         if (!result.response) {
-            session.send('Ooops! Too many attemps :( But don\'t worry, I\'m handling that exception and you can try again!');
+            // session.send('Ooops! Too many attemps :( But don\'t worry, I\'m handling that exception and you can try again!');
             return session.endDialog();
         }
         
@@ -127,13 +127,22 @@ bot.dialog('good_mood', [
     function (session) {
         var msg = new builder.Message(session).addAttachment(createAnimationCard(session));
         session.send(msg);
-        session.send('I will check up on you later!')
-        builder.Prompts.text(session, 'Bye '+ session.conversationData['username'] + '!');
+        session.delay(1000);
+        builder.Prompts.choice(
+            session,
+            'How are my dance skills?',
+            [':)', ':D'],
+            {
+                maxRetries: 3,
+                retryPrompt: 'Sorry! I did not get that :| \n\n I am very young. I was born yesterday! I promise I will get better :). \n\n In the meantime, could you help me understand you by selecting one of the options?',
+                listStyle: builder.ListStyle.button
+            });
     },
     function (session ,result) {
-        if (result.response.search('Bye!') > -1) {
-            session.endConversation();
-        }
+        session.delay(2000);
+        session.send('I will check up on you later!');
+        session.send('Bye '+ session.conversationData['username'] + '!');
+        return session.endDialog();
     }
 ]);
 
@@ -150,7 +159,6 @@ bot.dialog('bad_mood', [
 function createAnimationCard(session) {
     return new builder.AnimationCard(session)
         .title('Thats\'s awesome!')
-        .subtitle('Animation Card')
         .media([
             { url: 'https://media.giphy.com/media/3oz8xH46dD1DSx3vNK/giphy.gif' }
         ]);
