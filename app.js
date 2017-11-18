@@ -23,6 +23,11 @@ var connector = new builder.ChatConnector(botConnectorOptions);
 
 server.post('/api/messages', connector.listen());
 
+var Moods = {
+    Good: 'Good',
+    Bad: 'Bad'
+};
+
 var userStore = [];
 var bot = new builder.UniversalBot(connector, function (session) {
     // store user's address
@@ -84,23 +89,69 @@ bot.dialog('intro_survey', [
         builder.Prompts.text(session, 'Hi! I am Sorgenfreßer. Whats\'s your name?');
     },
     function (session, result) {
-        builder.Prompts.text(session, 'Hi ' + result.response+ '!, How are you feeling today?');
-    },
-    function (session, result) {
-        console.dir(result);
-        builder.Prompts.text(session, 'What are you doing right now, besides talking to me?');
-    },
-    function (session, result) {
+        session.conversationData['username'] = result.response;
         builder.Prompts.choice(
             session,
-            'What are feeling you more?',
-            ['A', 'B'],
+            'Hi ' + session.conversationData['username'] + '!, How are you feeling today?',
+            [Moods.Good, Moods.Bad],
             {
                 maxRetries: 3,
-                retryPrompt: 'Not a valid option'
+                retryPrompt: 'Sorry! I did not get that :| \n\n I am very young. I was born yesterday! I promise I will get better :). \n\n In the meantime, could you help me understand you by selecting one of the options?',
+                listStyle: builder.ListStyle.button
             });
     },
     function (session, result) {
-        builder.Prompts.text(session, result.response.entity);
-    },
+        if (!result.response) {
+            session.send('Ooops! Too many attemps :( But don\'t worry, I\'m handling that exception and you can try again!');
+            return session.endDialog();
+        }
+        
+        session.on('error', function (err) {
+            session.send('Failed with message: %s', err.message);
+            session.endDialog();
+        });
+
+        // continue on proper dialog
+        var selection = result.response.entity;
+        
+        switch (selection) {
+            case Moods.Good:
+                return session.beginDialog('good_mood');
+            case Moods.Bad:
+                return session.beginDialog('bad_mood');
+        }
+    }
 ]);
+
+bot.dialog('good_mood', [
+    function (session) {
+        var msg = new builder.Message(session).addAttachment(createAnimationCard(session));
+        session.send(msg);
+        session.send('I will check up on you later!')
+        builder.Prompts.text(session, 'Bye '+ session.conversationData['username'] + '!');
+    },
+    function (session ,result) {
+        if (result.response.search('Bye!') > -1) {
+            session.endConversation();
+        }
+    }
+]);
+
+bot.dialog('bad_mood', [
+    function (session) {
+        builder.Prompts.text(session, 'Oh! I am sorry to hear that. What is bothering you?');
+    },
+    function (session ,result) {
+        builder.Prompts.text(session, '');
+    }
+]);
+
+
+function createAnimationCard(session) {
+    return new builder.AnimationCard(session)
+        .title('Thats\'s awesome!')
+        .subtitle('Animation Card')
+        .media([
+            { url: 'https://media.giphy.com/media/3oz8xH46dD1DSx3vNK/giphy.gif' }
+        ]);
+}
