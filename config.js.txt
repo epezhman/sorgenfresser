@@ -1,0 +1,6 @@
+'use strict';
+
+module.exports = {
+    MS_APP_ID: '',
+    MS_APP_PASS: ''
+};
