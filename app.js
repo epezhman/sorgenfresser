@@ -258,7 +258,7 @@ bot.dialog('days', [
 bot.dialog('weeks', [
     function (session) {
         session.delay(2000);
-        session.send('I think it would be helpful to look for an professional to help you with this. I can help you look for a qualified therapist. Let me see what therapist are near you...');
+        session.send('I think it would be helpful to look for a professional to help you with this. I can help you look for a qualified therapist. Let me see what therapist are near you...');
         session.delay(2000);
         session.send('I have found the following qualified therapists near you:');
         session.delay(3000);
