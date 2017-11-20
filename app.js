@@ -1,7 +1,3 @@
-// This loads the environment variables from the .env file
-// require('dotenv-extended').load();
-require('./config');
-
 const config = require('./config');
 
 var builder = require('botbuilder');
@@ -9,17 +5,17 @@ var restify = require('restify');
 var emoji = require('node-emoji');
 
 var botConnectorOptions = {
-    appId: process.env.BOTFRAMEWORK_APPID ? process.env.BOTFRAMEWORK_APPID : config.MS_APP_ID ,
-    appPassword: process.env.BOTFRAMEWORK_APPSECRET ? process.env.BOTFRAMEWORK_APPSECRET :config.MS_APP_PASS
+    appId: process.env.BOTFRAMEWORK_APPID ? process.env.BOTFRAMEWORK_APPID : config.MS_APP_ID,
+    appPassword: process.env.BOTFRAMEWORK_APPSECRET ? process.env.BOTFRAMEWORK_APPSECRET : config.MS_APP_PASS
 };
 
-// Setup Restify Server
 var server = restify.createServer();
+
 server.listen(process.env.port || process.env.PORT || 3978, function () {
+    console.log(process.env.BOTFRAMEWORK_APPID)
     console.log('%s listening to %s', server.name, server.url);
 });
 
-// Create chat connector for communicating with the Bot Framework Service
 var connector = new builder.ChatConnector(botConnectorOptions);
 
 server.post('/api/messages', connector.listen());
@@ -120,7 +116,7 @@ bot.dialog('intro_survey', [
             // session.send('Ooops! Too many attemps :( But don\'t worry, I\'m handling that exception and you can try again!');
             return session.endDialog();
         }
-        
+
         session.on('error', function (err) {
             session.send('Failed with message: %s', err.message);
             session.endDialog();
@@ -128,7 +124,7 @@ bot.dialog('intro_survey', [
 
         // continue on proper dialog
         var selection = result.response.entity;
-        
+
         switch (selection) {
             case Moods.Good:
                 return session.beginDialog('good_mood');
@@ -153,11 +149,11 @@ bot.dialog('good_mood', [
                 listStyle: builder.ListStyle.button
             });
     },
-    function (session ,result) {
+    function (session, result) {
         session.delay(2000);
         session.send('I will check up on you later!');
         session.delay(3000);
-        session.send('Bye '+ session.conversationData['username'] + '!');
+        session.send('Bye ' + session.conversationData['username'] + '!');
         return session.endDialog();
     }
 ]);
@@ -245,7 +241,7 @@ bot.dialog('days', [
             case Emoticons.notHappy: {
                 var msg = createAnimationCard(session, 'https://media.giphy.com/media/NKTk26o6xzNFm/giphy.gif', null, 'Well sometimes you need help to feel good');
                 session.send(msg);
-                session.send('Go out, call a friend, family or a loved one and don\'t spend your time talking to a computer' + Emoticons.smiley +'. See you next time.');
+                session.send('Go out, call a friend, family or a loved one and don\'t spend your time talking to a computer' + Emoticons.smiley + '. See you next time.');
                 return session.endDialog();
             }
         }
@@ -304,27 +300,25 @@ bot.dialog('weeks', [
     }
 ]);
 
-
 function createVideoCard(session, url, title, subtitle, text) {
     return new builder.Message(session).addAttachment(new builder.VideoCard(session)
         .title(title)
         .subtitle(subtitle)
         .text(text)
         .media([
-            { url: url }
+            {url: url}
         ]));
 }
 
-
 function createAnimationCard(session, url, title, subtitle) {
     return new builder.Message(session).addAttachment(
-            new builder.AnimationCard(session)
-                .title(title)
-                .subtitle(subtitle)
-                .media([
-                    {
-                        url: url
-                    }
-                ])
-        );
+        new builder.AnimationCard(session)
+            .title(title)
+            .subtitle(subtitle)
+            .media([
+                {
+                    url: url
+                }
+            ])
+    );
 }
