@@ -1,4 +1,12 @@
-const config = require('./config');
+
+let config = null;
+try {
+    config = require('./config');
+}
+catch (e) {
+        console.log("config does not exist");
+}
+
 
 var builder = require('botbuilder');
 var restify = require('restify');
